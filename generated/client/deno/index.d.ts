@@ -107,52 +107,6 @@ export class PrismaClient<
   $use(cb: Prisma.Middleware): void
 
 /**
-   * Executes a prepared raw query and returns the number of affected rows.
-   * @example
-   * ```
-   * const result = await prisma.$executeRaw`UPDATE User SET cool = ${true} WHERE email = ${'user@email.com'};`
-   * ```
-   * 
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
-   */
-  $executeRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): PrismaPromise<number>;
-
-  /**
-   * Executes a raw query and returns the number of affected rows.
-   * Susceptible to SQL injections, see documentation.
-   * @example
-   * ```
-   * const result = await prisma.$executeRawUnsafe('UPDATE User SET cool = $1 WHERE email = $2 ;', true, 'user@email.com')
-   * ```
-   * 
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
-   */
-  $executeRawUnsafe<T = unknown>(query: string, ...values: any[]): PrismaPromise<number>;
-
-  /**
-   * Performs a prepared raw query and returns the `SELECT` data.
-   * @example
-   * ```
-   * const result = await prisma.$queryRaw`SELECT * FROM User WHERE id = ${1} OR email = ${'user@email.com'};`
-   * ```
-   * 
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
-   */
-  $queryRaw<T = unknown>(query: TemplateStringsArray | Prisma.Sql, ...values: any[]): PrismaPromise<T>;
-
-  /**
-   * Performs a raw query and returns the `SELECT` data.
-   * Susceptible to SQL injections, see documentation.
-   * @example
-   * ```
-   * const result = await prisma.$queryRawUnsafe('SELECT * FROM User WHERE id = $1 OR email = $2;', 1, 'user@email.com')
-   * ```
-   * 
-   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
-   */
-  $queryRawUnsafe<T = unknown>(query: string, ...values: any[]): PrismaPromise<T>;
-
-  /**
    * Allows the running of a sequence of read/write operations that are guaranteed to either succeed or fail as a whole.
    * @example
    * ```
@@ -165,7 +119,23 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
    */
-  $transaction<P extends PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): Promise<UnwrapTuple<P>>;
+  $transaction<P extends PrismaPromise<any>[]>(arg: [...P]): Promise<UnwrapTuple<P>>;
+
+
+  /**
+   * Executes a raw MongoDB command and returns the result of it.
+   * @example
+   * ```
+   * const user = await prisma.$runCommandRaw({
+   *   aggregate: 'User',
+   *   pipeline: [{ $match: { name: 'Bob' } }, { $project: { email: true, _id: false } }],
+   *   explain: false,
+   * })
+   * ```
+   * 
+   * Read more in our [docs](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/raw-database-access).
+   */
+  $runCommandRaw(command: Prisma.InputJsonObject): PrismaPromise<Prisma.JsonObject>;
 
       /**
    * `prisma.todo`: Exposes CRUD operations for the **Todo** model.
@@ -1221,6 +1191,33 @@ export namespace Prisma {
     ): CheckSelect<T, Prisma__TodoClient<Todo>, Prisma__TodoClient<TodoGetPayload<T>>>
 
     /**
+     * Find zero or more Todos that matches the filter.
+     * @param {TodoFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const todo = await prisma.todo.findRaw({
+     *   filter: { age: { $gt: 25 } } 
+     * })
+    **/
+    findRaw(
+      args?: TodoFindRawArgs
+    ): PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Todo.
+     * @param {TodoAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const todo = await prisma.todo.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+    **/
+    aggregateRaw(
+      args?: TodoAggregateRawArgs
+    ): PrismaPromise<JsonObject>
+
+    /**
      * Find one Todo that matches the filter or throw
      * `NotFoundError` if no matches were found.
      * @param {TodoFindUniqueOrThrowArgs} args - Arguments to find a Todo
@@ -1596,7 +1593,6 @@ export namespace Prisma {
      * 
     **/
     data: Enumerable<TodoCreateManyInput>
-    skipDuplicates?: boolean
   }
 
 
@@ -1696,6 +1692,40 @@ export namespace Prisma {
 
 
   /**
+   * Todo findRaw
+   */
+  export type TodoFindRawArgs = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     * 
+    **/
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     * 
+    **/
+    options?: InputJsonValue
+  }
+
+
+  /**
+   * Todo aggregateRaw
+   */
+  export type TodoAggregateRawArgs = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     * 
+    **/
+    pipeline?: Array<InputJsonValue>
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     * 
+    **/
+    options?: InputJsonValue
+  }
+
+
+  /**
    * Todo: findUniqueOrThrow
    */
   export type TodoFindUniqueOrThrowArgs = TodoFindUniqueArgsBase
@@ -1754,16 +1784,6 @@ export namespace Prisma {
   };
 
   export type TodoScalarFieldEnum = (typeof TodoScalarFieldEnum)[keyof typeof TodoScalarFieldEnum]
-
-
-  export const TransactionIsolationLevel: {
-    ReadUncommitted: 'ReadUncommitted',
-    ReadCommitted: 'ReadCommitted',
-    RepeatableRead: 'RepeatableRead',
-    Serializable: 'Serializable'
-  };
-
-  export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
   /**
@@ -1846,7 +1866,6 @@ export namespace Prisma {
   }
 
   export type TodoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
@@ -1856,7 +1875,6 @@ export namespace Prisma {
   }
 
   export type TodoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
@@ -1876,7 +1894,6 @@ export namespace Prisma {
   }
 
   export type TodoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
@@ -1886,7 +1903,6 @@ export namespace Prisma {
   }
 
   export type TodoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
     title?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     category?: StringFieldUpdateOperationsInput | string
@@ -1913,6 +1929,7 @@ export namespace Prisma {
   export type BoolNullableFilter = {
     equals?: boolean | null
     not?: NestedBoolNullableFilter | boolean | null
+    isSet?: boolean
   }
 
   export type DateTimeFilter = {
@@ -1980,6 +1997,7 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter
     _min?: NestedBoolNullableFilter
     _max?: NestedBoolNullableFilter
+    isSet?: boolean
   }
 
   export type DateTimeWithAggregatesFilter = {
@@ -2002,6 +2020,7 @@ export namespace Prisma {
 
   export type NullableBoolFieldUpdateOperationsInput = {
     set?: boolean | null
+    unset?: boolean
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -2025,6 +2044,7 @@ export namespace Prisma {
   export type NestedBoolNullableFilter = {
     equals?: boolean | null
     not?: NestedBoolNullableFilter | boolean | null
+    isSet?: boolean
   }
 
   export type NestedDateTimeFilter = {
@@ -2072,6 +2092,7 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter
     _min?: NestedBoolNullableFilter
     _max?: NestedBoolNullableFilter
+    isSet?: boolean
   }
 
   export type NestedIntNullableFilter = {
@@ -2083,6 +2104,7 @@ export namespace Prisma {
     gt?: number
     gte?: number
     not?: NestedIntNullableFilter | number | null
+    isSet?: boolean
   }
 
   export type NestedDateTimeWithAggregatesFilter = {
