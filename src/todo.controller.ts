@@ -25,7 +25,7 @@ const createTodoController = async ({
       if (error.code === "P2002") {
         response.status = 409;
         response.body = {
-          status: "error",
+          status: "fail",
           message: "Todo with that title already exists",
         };
         return;
@@ -56,6 +56,16 @@ const updateTodoController = async ({
       todo: updatedTodo,
     };
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        response.status = 404;
+        response.body = {
+          status: "fail",
+          message: "No todo with that Id exists",
+        };
+        return;
+      }
+    }
     response.status = 500;
     response.body = { status: "error", message: error.message };
     return;
@@ -121,19 +131,20 @@ const deleteTodoController = async ({
   response,
 }: RouterContext<string>) => {
   try {
-    const todo = await prisma.todo.delete({ where: { id: params.todoId } });
-
-    if (!todo) {
-      response.status = 404;
-      response.body = {
-        status: "success",
-        message: "No todo with that Id exists",
-      };
-      return;
-    }
+    await prisma.todo.delete({ where: { id: params.todoId } });
 
     response.status = 204;
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        response.status = 404;
+        response.body = {
+          status: "fail",
+          message: "No todo with that Id exists",
+        };
+        return;
+      }
+    }
     response.status = 500;
     response.body = { status: "error", message: error.message };
     return;

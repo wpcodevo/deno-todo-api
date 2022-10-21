@@ -21,7 +21,10 @@ app.use(async (ctx, next) => {
 });
 
 router.get<string>("/api/healthchecker", (ctx: RouterContext<string>) => {
-  ctx.response.body = "Hello World!";
+  ctx.response.body = {
+    status: "success",
+    message: "Welcome to Deno and Prisma",
+  };
 });
 
 app.use(todoRouter.prefix("/api/todos/").routes());

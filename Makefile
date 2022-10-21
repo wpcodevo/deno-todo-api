@@ -1,9 +1,3 @@
-dev:
-	docker-compose up -d
-
-dev-down:
-	docker-compose down
-
 db-init:
 	deno run -A --unstable npm:prisma init --datasource-provider sqlite
 
