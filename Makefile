@@ -1,5 +1,9 @@
+docker-dev:
+	docker-compose up -d
+docker-down:
+	docker-compose down
 db-init:
-	deno run -A --unstable npm:prisma init
+	deno run -A --unstable npm:prisma init --datasource-provider sqlite
 
 db-migrate: 
 	deno run -A --unstable npm:prisma migrate dev --name todo-entity --create-only
