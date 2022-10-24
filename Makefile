@@ -1,5 +1,5 @@
 db-init:
-	deno run -A --unstable npm:prisma init --datasource-provider sqlite
+	deno run -A --unstable npm:prisma init
 
 db-migrate: 
 	deno run -A --unstable npm:prisma migrate dev --name todo-entity --create-only
